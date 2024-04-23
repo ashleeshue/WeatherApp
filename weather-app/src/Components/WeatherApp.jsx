@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Button, Form, Alert } from "react-bootstrap";
+import "./WeatherApp.css"; // Custom CSS for WeatherApp styling
 
 const WeatherApp = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -59,9 +60,9 @@ const WeatherApp = () => {
       <Row xs={1} md={2} lg={3} className="g-4">
         {weatherData.map((data, index) => (
           <Col key={index}>
-            <Card>
+            <Card className="weather-card">
               <Card.Body>
-                <Card.Title>{data.name}</Card.Title>
+                <Card.Title className="card-title">{data.name}</Card.Title>
                 <Card.Text>Temperature: {data.main.temp}°C</Card.Text>
                 <Card.Text>Weather: {data.weather[0].description}</Card.Text>
                 <Card.Text>Wind Speed: {data.wind.speed} m/s</Card.Text>
