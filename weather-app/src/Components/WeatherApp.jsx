@@ -3,30 +3,24 @@ import { Container, Row, Col, Card, Button, Form, Alert } from "react-bootstrap"
 
 const WeatherApp = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [weatherData, setWeatherData] = useState(null);
+  const [weatherData, setWeatherData] = useState([]);
   const [error, setError] = useState(null);
-
-  useEffect(() => {
-    // Fetch weather data when component mounts
-    fetchWeatherData();
-  }, []);
 
   const fetchWeatherData = async () => {
     try {
-        const API_KEY = 'bf0f4b955f7b097b3c6172ad08d91a67';
-        const API_Page = `https://api.openweathermap.org`
-        const API_URL = `${API_Page}/data/2.5/weather?q=${searchTerm}&appid=${API_KEY}`;
-       
-      const response = await fetch(apiUrl);
+      const API_KEY = 'bf0f4b955f7b097b3c6172ad08d91a67';
+      const API_Page = `https://api.openweathermap.org`
+      const API_URL = `${API_Page}/data/2.5/weather?q=${searchTerm}&appid=${API_KEY}`;
+
+      const response = await fetch(API_URL);
       if (!response.ok) {
         throw new Error("City not found. Please enter a valid city name.");
       }
 
       const data = await response.json();
-      setWeatherData(data);
+      setWeatherData((prevData) => [...prevData, data]); // Add new data to the array
       setError(null);
     } catch (error) {
-      setWeatherData(null);
       setError(error.message);
     }
   };
@@ -34,10 +28,11 @@ const WeatherApp = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     fetchWeatherData();
+    setSearchTerm(""); // Clear the search term after search
   };
 
-  const handleRemoveCard = () => {
-    setWeatherData(null);
+  const handleRemoveCard = (index) => {
+    setWeatherData((prevData) => prevData.filter((_, i) => i !== index));
   };
 
   return (
@@ -62,20 +57,20 @@ const WeatherApp = () => {
       {error && <Alert variant="danger">{error}</Alert>}
 
       <Row xs={1} md={2} lg={3} className="g-4">
-        {weatherData && (
-          <Col>
+        {weatherData.map((data, index) => (
+          <Col key={index}>
             <Card>
               <Card.Body>
-                <Card.Title>{weatherData.name}</Card.Title>
-                <Card.Text>Temperature: {weatherData.main.temp}°C</Card.Text>
-                <Card.Text>Weather: {weatherData.weather[0].description}</Card.Text>
-                <Card.Text>Wind Speed: {weatherData.wind.speed} m/s</Card.Text>
-                <Card.Text>Humidity: {weatherData.main.humidity}%</Card.Text>
-                <Button variant="danger" onClick={handleRemoveCard}>Remove</Button>
+                <Card.Title>{data.name}</Card.Title>
+                <Card.Text>Temperature: {data.main.temp}°C</Card.Text>
+                <Card.Text>Weather: {data.weather[0].description}</Card.Text>
+                <Card.Text>Wind Speed: {data.wind.speed} m/s</Card.Text>
+                <Card.Text>Humidity: {data.main.humidity}%</Card.Text>
+                <Button variant="danger" onClick={() => handleRemoveCard(index)}>Remove</Button>
               </Card.Body>
             </Card>
           </Col>
-        )}
+        ))}
       </Row>
     </Container>
   );
